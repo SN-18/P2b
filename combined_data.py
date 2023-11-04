@@ -1,4 +1,5 @@
-
+########################################################################################################################
+#Working code, working inside of a copy of github repo, another copy exists by the name of P2b on desktop
 import os
 import openpyxl
 import pandas as pd
@@ -10,7 +11,7 @@ output_sheet.title = 'Combined Data'
 x = 1
 
 #LOAD DATA
-folder = r"\P2a_Labels"
+folder = r"P2a_Labels"
 output_file = "combined_scores"
 
 combined_data = pd.DataFrame()
@@ -39,7 +40,7 @@ for filename in os.listdir(folder):
             print(f"Error reading file {filename}: {str(e)}")
 
 output_wb.save(output_file)
-
+print(combined_data)
 
 
 
@@ -78,3 +79,44 @@ if new_data.shape[0] > 2500:
 
 print(new_data)
 new_data.to_excel('condensed_violations.xlsx', index=False)
+
+###########################################################################################################################
+#merging two excel files
+import pandas as pd
+
+
+
+file1_path = "P2-a-submission-v3.xlsx"
+output_file_path = "merged_file.xlsx"
+
+# Load the data from the first Excel file (only first two columns)
+df2 = new_data.iloc[:, 0:3]
+
+# Load the data from the second Excel file (only first three columns)
+df1 = pd.read_excel(file1_path, usecols=[0, 1])
+
+# Merge the two dataframes
+merged_df = pd.concat([df1, df2], axis=1)
+print("merged df is:")
+print(merged_df)
+# Save the merged dataframe to a new Excel file
+merged_df.to_excel(output_file_path, index=False)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
