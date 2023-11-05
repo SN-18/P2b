@@ -1,43 +1,55 @@
 
-
-folder=r"\P2a_Labels"
-# output_file=r"C:\Users\nanda\Desktop\DAI\P2b\combined_scores"
-output_file = "combined_scores_1"
-########################################################################################################################
-#Working code for kohen's kappa
+############################################################################################################################
+                                                            # LOAD DATA #
+############################################################################################################################
 import os
-import openpyxl
 import pandas as pd
+from scipy.stats import mannwhitneyu
+from sklearn.preprocessing import LabelEncoder
 
-folder = r"C:\Users\nanda\Desktop\DAI\P2b\P2a_Labels"
-output_file = r"C:\Users\nanda\Desktop\DAI\P2b\combined_scores.xlsx"
+folder = r"C:\Users\nanda\Desktop\P2b\Pb2\P2a_Labels"
+directory_path = folder
 
-output_wb = openpyxl.Workbook()
-output_sheet = output_wb.active
-output_sheet.title = 'Combined Data'
+# List all files in the directory
+file_paths = [os.path.join(directory_path, filename) for filename in os.listdir(directory_path) if filename.endswith('.xlsx')]
 
-x = 1  
-y = 1  
+# Initialize a list to store potential fake files
+potential_fake_files = []
 
-for filename in os.listdir(folder):
-    if filename.endswith(".xlsx"):
-        file_path = os.path.join(folder, filename)
-        sheet_name = "Sheet1"
+# Initialize a label encoder
+label_encoder = LabelEncoder()
 
+# Process the data from the Excel files
+for file_path in file_paths:
+    try:
         data = pd.read_excel(file_path)
 
-        for row in data.iterrows():
-            fake_data_detected = False  # Initialize a flag for fake data detection
-            for i, value in enumerate(row[1]):
-                output_sheet.cell(row=x, column=i + 1, value=value)
+        if not all(col in data.columns for col in ['First violation', 'Second violation', 'Third violation']):
+            continue
 
-                # Example rule for fake data detection: Check if the cell contains the word "fake"
-                if isinstance(value, str) and "fake" in value.lower():
-                    fake_data_detected = True
-            x = x + 1
+        violation_columns = ['First violation', 'Second violation', 'Third violation']
 
-            # If fake data is detected, you can report the file that contains fake data
-            if fake_data_detected:
-                print(f"Fake data detected in file: {filename}")
-output_wb.save(output_file)
+        #Processing to numerical values from string labels
+        for col in violation_columns:
+            data[col] = label_encoder.fit_transform(data[col])
 
+#########################################################################################################################
+                                      #  PERFORM THE MANN-Whitney U Test  #
+#########################################################################################################################
+
+
+        u_stat, p_value = mannwhitneyu(data['First violation'], data['Second violation'])
+
+
+        significance_level = 0.1
+
+        if p_value < significance_level:
+            potential_fake_files.append(file_path)
+    except Exception as e:
+        print(f"An error occurred while processing {file_path}: {e}")
+        continue
+
+
+print("Potential fake files:")
+for file in potential_fake_files:
+    print(file)
