@@ -7,7 +7,7 @@ import pandas as pd
 from scipy.stats import mannwhitneyu
 from sklearn.preprocessing import LabelEncoder
 
-folder = r"C:\Users\nanda\Desktop\P2b\Pb2\P2a_Labels"
+folder = r"P2a_Labels"
 directory_path = folder
 
 # List all files in the directory
